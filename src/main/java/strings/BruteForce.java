@@ -1,13 +1,13 @@
 package strings;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BruteForce
 {
     public static List<String> words(String s)
     {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new ArrayList<String>();
 
         int i = s.length();
         int lastChar = -1;
@@ -22,7 +22,7 @@ public class BruteForce
             {
                 if (s.charAt(i) == ' ' || i == 0)
                 {
-                    result.add(0, s.substring(i + 1, lastChar + 1));
+                    result.add(s.substring(i + 1, lastChar + 1));
                     lastChar = -1;
                 }
             }

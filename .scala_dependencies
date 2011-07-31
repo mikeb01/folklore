@@ -22,7 +22,6 @@
 /Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/WordState.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/Segment$.class
 /Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/WordState.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/Chunk.class
 /Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/WordState.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/WordState$$anonfun$wordsParallel$1.class
-/Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/WordState.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/WordState$$anonfun$2.class
 /Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/ParallelWordStatePerformanceTest.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/ParallelWordStatePerformanceTest.class
 /Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/ParallelWordStatePerformanceTest.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/ParallelWordStatePerformanceTest$$anonfun$run$1.class
 /Users/mikeb01/Documents/workspace/folklore/src/main/scala/strings/FastList.scala -> /Users/mikeb01/Documents/workspace/folklore/bin/strings/FastList.class
