@@ -8,6 +8,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import distributed.DataService;
+
 public class DataServiceTest
 {
 

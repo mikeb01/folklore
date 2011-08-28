@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import performance.PerformanceMain;
-import distributed.async.Client;
-import distributed.async.DataService;
-import distributed.async.EdgeService;
 
 public class Main
 {
@@ -17,9 +14,11 @@ public class Main
     public static void main(String[] args)
     {
         MAIN_CLASSES.put("strings", PerformanceMain.class);
-        MAIN_CLASSES.put("async.server.edge", EdgeService.class);
-        MAIN_CLASSES.put("async.server.data", DataService.class);
-        MAIN_CLASSES.put("async.client", Client.class);
+        MAIN_CLASSES.put("async.server.edge", distributed.async.EdgeService.class);
+        MAIN_CLASSES.put("async.server.data", distributed.DataService.class);
+        MAIN_CLASSES.put("async.client", distributed.async.Client.class);
+        MAIN_CLASSES.put("sync.server.edge", distributed.sync.EdgeService.class);
+        MAIN_CLASSES.put("sync.client", distributed.sync.Client.class);
         
         if (0 == args.length || !MAIN_CLASSES.containsKey(args[0].trim()))
         {

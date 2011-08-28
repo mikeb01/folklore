@@ -1,4 +1,4 @@
-package distributed.async;
+package distributed;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;

@@ -1,4 +1,4 @@
-package distributed.async;
+package distributed.sync;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,6 +12,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 public class EdgeService
@@ -20,7 +23,7 @@ public class EdgeService
     
     private final int port;
     private final ExecutorService executor = Executors.newCachedThreadPool();
-    private final Map<Long, SocketChannel> outgoingChannels = new HashMap<Long, SocketChannel>();
+    private final Map<Long, Session> outgoingChannels = new HashMap<Long, Session>();
     private final Queue<Session> newConnections = new ConcurrentLinkedQueue<Session>();
     private final InetSocketAddress serviceAddress;
     private long sequence = 0;
@@ -77,7 +80,7 @@ public class EdgeService
                 {
                     SocketChannel channel = serverSocket.accept();
                     LOG.info("Connection from: " + channel.socket().getRemoteSocketAddress());
-                    Session session = new Session(sequence++, channel);
+                    Session session = new Session(sequence++);
                     newConnections.add(session);
                     
                     executor.execute(new RequestHandler(session, channel));
@@ -94,6 +97,7 @@ public class EdgeService
     {
         private final Session session;
         private final SocketChannel channel;
+        private final ByteBuffer request = ByteBuffer.allocate(136);
         
         public RequestHandler(Session session, SocketChannel channel) throws IOException
         {
@@ -107,17 +111,27 @@ public class EdgeService
             try
             {
                 Thread currentThread = Thread.currentThread();
-                ByteBuffer buffer = session.readBuffer;
                 
                 while (!currentThread.isInterrupted())
                 {
-                    if (-1 != channel.read(buffer))
+                    request.clear();
+                    
+                    request.putLong(session.id);
+                    if (-1 != channel.read(request))
                     {
-                        if (0 == buffer.remaining())
+                        if (0 == request.remaining())
                         {
-                            buffer.flip();
-                            datagramChannel.write(buffer);
-                            session.reset();
+                            request.flip();
+                            datagramChannel.write(request);
+                            
+                            session.await();
+                            while (0 != session.response.remaining())
+                            {
+                                if (-1 == channel.write(session.response))
+                                {
+                                    channel.close();
+                                }
+                            }
                         }
                     }
                     else
@@ -161,18 +175,16 @@ public class EdgeService
                     
                     for (Session session : newConnections)
                     {
-                        outgoingChannels.put(session.id, session.channel);
+                        outgoingChannels.put(session.id, session);
                     }
                     
                     long id = buffer.getLong();
-                    SocketChannel channel = outgoingChannels.get(id);
-                    while (0 != buffer.remaining())
-                    {
-                        if (-1 == channel.write(buffer))
-                        {
-                            channel.close();
-                        }
-                    }
+                    Session session = outgoingChannels.get(id);
+                    
+                    session.response.clear();
+                    session.response.put(buffer);
+                    session.response.flip();
+                    session.signal();
                 }
             }
             catch (IOException e)
@@ -184,21 +196,40 @@ public class EdgeService
     
     private static class Session
     {
+        private final Lock lock = new ReentrantLock();
+        private final Condition condition = lock.newCondition();
         public final long id;
-        public final SocketChannel channel;
-        public ByteBuffer readBuffer = ByteBuffer.allocate(136);
+        public ByteBuffer response = ByteBuffer.allocate(128);
 
-        public Session(long id, SocketChannel channel)
+        public Session(long id)
         {
             this.id = id;
-            this.channel = channel;
-            reset();
         }
-        
-        public void reset()
+
+        public void signal()
         {
-            readBuffer.clear();
-            readBuffer.putLong(id);
+            lock.lock();
+            try
+            {
+                condition.signal();
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+
+        public void await() throws InterruptedException
+        {
+            lock.lock();
+            try
+            {
+                condition.await();
+            }
+            finally
+            {
+                lock.unlock();
+            }
         }
     }
     

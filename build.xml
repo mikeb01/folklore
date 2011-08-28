@@ -23,10 +23,10 @@
           target: default              
          ================================= -->
 	<target name="default" depends="depends" description="Programming Example from Fokelore talk">
-		<jar file="lib/runtime/folkelore.jar">
+		<jar file="lib/runtime/folklore.jar">
 			<manifest>
 				<attribute name="Class-Path" value="commons-math-2.2.jar scala-library-2.9.0-1.jar"/>
-				<attribute name="Main-Class" value="performance.Main"/>
+				<attribute name="Main-Class" value="util.Main"/>
 			</manifest>
 			<zipfileset dir="bin">
 				<include name="**/*.class"/>
