@@ -8,68 +8,69 @@
      mikeb01                                                                
      ====================================================================== -->
 <project name="fokelore" default="default" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
-	<description>
-            Programming Example from Fokelore talk
+    <description>
+        Programming Example from Fokelore talk
     </description>
 
-	<path id="maven-ant-tasks.classpath" path="${basedir}/bootstrap/maven-ant-tasks-2.1.3.jar" />
-	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+    <path id="maven-ant-tasks.classpath" path="${basedir}/bootstrap/maven-ant-tasks-2.1.3.jar"/>
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath"/>
 
-	<property name="lib.runtime" value="lib/runtime" />
-	<property name="lib.test" value="lib/test" />
-	<property name="module.pom" value="pom.xml" />
-	<!-- ================================= 
-          target: default              
-         ================================= -->
+    <property name="lib.runtime" value="lib/runtime"/>
+    <property name="lib.test" value="lib/test"/>
+    <property name="module.pom" value="pom.xml"/>
+    <!-- =================================
+    target: default
+   ================================= -->
     <target name="depends">
-        <mkdir dir="${lib.runtime}" />
-        <mkdir dir="${lib.test}" />
+        <mkdir dir="${lib.runtime}"/>
+        <mkdir dir="${lib.test}"/>
         <mkdir dir="bin"/>
 
-        <artifact:pom id="pom" file="${module.pom}" />
-        <artifact:dependencies pomrefid="pom" filesetid="runtime.depends.fileset" usescope="runtime" />
-        <artifact:dependencies pomrefid="pom" filesetid="test.depends.fileset" scopes="test" />
+        <artifact:pom id="pom" file="${module.pom}"/>
+        <artifact:dependencies pomrefid="pom" filesetid="runtime.depends.fileset" usescope="runtime"/>
+        <artifact:dependencies pomrefid="pom" filesetid="test.depends.fileset" scopes="test"/>
 
         <copy todir="${lib.runtime}">
-            <fileset refid="runtime.depends.fileset" />
-            <mapper type="flatten" />
+            <fileset refid="runtime.depends.fileset"/>
+            <mapper type="flatten"/>
         </copy>
         <copy todir="${lib.test}">
-            <fileset refid="test.depends.fileset" />
-            <mapper type="flatten" />
+            <fileset refid="test.depends.fileset"/>
+            <mapper type="flatten"/>
         </copy>
-        <touch file="lib/dependencies-resolved" />
+        <touch file="lib/dependencies-resolved"/>
         <taskdef resource="scala/tools/ant/antlib.xml">
             <classpath>
-                <pathelement location="${lib.runtime}/scala-compiler-2.9.0-1.jar"   />
-                <pathelement location="${lib.runtime}/scala-library-2.9.0-1.jar"   />
+                <pathelement location="${lib.runtime}/scala-compiler-2.9.0-1.jar"/>
+                <pathelement location="${lib.runtime}/scala-library-2.9.0-1.jar"/>
             </classpath>
         </taskdef>
     </target>
 
     <target name="default" depends="compile,depends" description="Programming Example from Fokelore talk">
-		<jar file="${lib.runtime}/folklore.jar">
-			<manifest>
-				<attribute name="Class-Path" value="commons-math-2.2.jar scala-library-2.9.0-1.jar"/>
-				<attribute name="Main-Class" value="util.Main"/>
-			</manifest>
-			<zipfileset dir="target/java">
-				<include name="**/*.class"/>
-			</zipfileset>
+        <jar file="${lib.runtime}/folklore.jar">
+            <manifest>
+                <attribute name="Class-Path" value="commons-math-2.2.jar scala-library-2.9.0-1.jar"/>
+                <attribute name="Main-Class" value="util.Main"/>
+            </manifest>
+            <zipfileset dir="target/java">
+                <include name="**/*.class"/>
+            </zipfileset>
             <zipfileset dir="target/scala">
                 <include name="**/*.class"/>
             </zipfileset>
         </jar>
-		
-		<zip file="folklore.zip">
-			<zipfileset dir="lib/runtime" prefix="folklore">
-				<include name="*.jar"/>
-			</zipfileset>
-			<zipfileset dir="${basedir}" prefix="folklore">
-				<include name="src/main/resources/*"/>
-			</zipfileset>
-		</zip>
-	</target>
+
+        <zip file="folklore.zip">
+            <zipfileset dir="lib/runtime" prefix="folklore">
+                <include name="*.jar"/>
+            </zipfileset>
+            <zipfileset dir="${basedir}" prefix="folklore">
+                <include name="src/main/resources/*"/>
+            </zipfileset>
+        </zip>
+    </target>
 
     <target name="clean">
         <delete dir="target" failonerror="false"/>
@@ -101,8 +102,10 @@
             <pathelement path="target/java"/>
         </path>
 
-        <scalac srcdir="src/main/scala" destdir="target/scala" classpathref="scala-compile-classpath" sourcepath="src/main/java"/>
-        <javac srcdir="src/main/java" destdir="target/java" classpathref="java-compile-classpath" includeantruntime="false"/>
+        <scalac srcdir="src/main/scala" destdir="target/scala" classpathref="scala-compile-classpath"
+                sourcepath="src/main/java"/>
+        <javac srcdir="src/main/java" destdir="target/java" classpathref="java-compile-classpath"
+               includeantruntime="false"/>
     </target>
 
 </project>
