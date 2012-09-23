@@ -8,12 +8,7 @@
 		<repository>
 			<id>scala-tools-releases</id>
 			<name>Scala-Tools Maven2 Repository Releases</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</repository>
-		<repository>
-			<id>scala-tools-snapshots</id>
-			<name>Scala-Tools Maven2 Repository - Snapshots</name>
-			<url>http://scala-tools.org/repo-snapshots</url>
+                        <url>https://oss.sonatype.org/content/groups/scala-tools/</url>
 		</repository>
 	</repositories>
 	<properties>
@@ -25,6 +20,12 @@
 			<artifactId>scala-library</artifactId>
 			<version>${scala.version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-compiler</artifactId>
+			<version>${scala.version}</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

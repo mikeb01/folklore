@@ -18,20 +18,48 @@
 	<property name="lib.runtime" value="lib/runtime" />
 	<property name="lib.test" value="lib/test" />
 	<property name="module.pom" value="pom.xml" />
-
 	<!-- ================================= 
           target: default              
          ================================= -->
-	<target name="default" depends="depends" description="Programming Example from Fokelore talk">
-		<jar file="lib/runtime/folklore.jar">
+    <target name="depends">
+        <mkdir dir="${lib.runtime}" />
+        <mkdir dir="${lib.test}" />
+        <mkdir dir="bin"/>
+
+        <artifact:pom id="pom" file="${module.pom}" />
+        <artifact:dependencies pomrefid="pom" filesetid="runtime.depends.fileset" usescope="runtime" />
+        <artifact:dependencies pomrefid="pom" filesetid="test.depends.fileset" scopes="test" />
+
+        <copy todir="${lib.runtime}">
+            <fileset refid="runtime.depends.fileset" />
+            <mapper type="flatten" />
+        </copy>
+        <copy todir="${lib.test}">
+            <fileset refid="test.depends.fileset" />
+            <mapper type="flatten" />
+        </copy>
+        <touch file="lib/dependencies-resolved" />
+        <taskdef resource="scala/tools/ant/antlib.xml">
+            <classpath>
+                <pathelement location="${lib.runtime}/scala-compiler-2.9.0-1.jar"   />
+                <pathelement location="${lib.runtime}/scala-library-2.9.0-1.jar"   />
+            </classpath>
+        </taskdef>
+    </target>
+
+    <target name="default" depends="compile,depends" description="Programming Example from Fokelore talk">
+		<jar file="${lib.runtime}/folklore.jar">
 			<manifest>
 				<attribute name="Class-Path" value="commons-math-2.2.jar scala-library-2.9.0-1.jar"/>
 				<attribute name="Main-Class" value="util.Main"/>
 			</manifest>
-			<zipfileset dir="bin">
+			<zipfileset dir="target/java">
 				<include name="**/*.class"/>
 			</zipfileset>
-		</jar>
+            <zipfileset dir="target/scala">
+                <include name="**/*.class"/>
+            </zipfileset>
+        </jar>
 		
 		<zip file="folklore.zip">
 			<zipfileset dir="lib/runtime" prefix="folklore">
@@ -43,26 +71,38 @@
 		</zip>
 	</target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: depends                      
-         - - - - - - - - - - - - - - - - - -->
-	<target name="depends">
-		<mkdir dir="${lib.runtime}" />
-		<mkdir dir="${lib.test}" />
+    <target name="clean">
+        <delete dir="target" failonerror="false"/>
+        <delete dir="bin" failonerror="false"/>
+        <delete dir="lib" failonerror="false"/>
+        <delete file="folklore.zip"/>
+    </target>
 
-		<artifact:pom id="pom" file="${module.pom}" />
-		<artifact:dependencies pomrefid="pom" filesetid="runtime.depends.fileset" usescope="runtime" />
-		<artifact:dependencies pomrefid="pom" filesetid="test.depends.fileset" scopes="test" />
+    <target name="perf:test" depends="default">
+        <java jar="${lib.runtime}/folklore.jar" fork="true">
+            <arg value="strings"/>
+        </java>
+    </target>
 
-		<copy todir="${lib.runtime}">
-			<fileset refid="runtime.depends.fileset" />
-			<mapper type="flatten" />
-		</copy>
-		<copy todir="${lib.test}">
-			<fileset refid="test.depends.fileset" />
-			<mapper type="flatten" />
-		</copy>
-		<touch file="lib/dependencies-resolved" />
-	</target>
+    <target name="compile" depends="depends">
+        <mkdir dir="target/java"/>
+        <mkdir dir="target/scala"/>
+
+        <path id="java-compile-classpath">
+            <fileset dir="${lib.runtime}">
+                <include name="**/*.jar"/>
+            </fileset>
+            <pathelement path="target/scala"/>
+        </path>
+        <path id="scala-compile-classpath">
+            <fileset dir="${lib.runtime}">
+                <include name="**/*.jar"/>
+            </fileset>
+            <pathelement path="target/java"/>
+        </path>
+
+        <scalac srcdir="src/main/scala" destdir="target/scala" classpathref="scala-compile-classpath" sourcepath="src/main/java"/>
+        <javac srcdir="src/main/java" destdir="target/java" classpathref="java-compile-classpath" includeantruntime="false"/>
+    </target>
 
 </project>
